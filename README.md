@@ -6,11 +6,11 @@
 ## Business Understanding
 The goals for this project are:
 * Analyze data from the National Transportation Safety Board from 1962 to 2023 that deal with aviation accidents.
-* Find the shareholders what aircrafts offer low risks to invest in.
-* Determine what aircrafts offer high risks to the investors.
-* Provide information to the head of new aviation division on which aircrafts the shareholders should purchase.
+* Find the shareholders what aircraft offer low risks to invest in.
+* Determine what aircraft offer high risks to the investors.
+* Provide information to the head of new aviation division on which aircraft the shareholders should purchase.
 
-Once these goals are met we can identify which aircrafts are suitable for any stakeholder to invest in with minimal loss and projections for profit in the future in the aviation industry.
+Once these goals are met we can identify which aircraft are suitable for any stakeholder to invest in with minimal loss and projections for profit in the future in the aviation industry.
 ## Data Understanding
 The data  comes from [Kaggle](https://www.kaggle.com/datasets/khsamaha/aviation-accident-database-synopses) which has information about aviation accidents from 1962 to 2023.
 
@@ -78,14 +78,14 @@ df.describe()
 ```
 ```python
       Number.of.Engines Total.Fatal.Injuries Total.Serious.Injuries Total.Minor.Injuries 	Total.Uninjured
-count 	82805.000000 	77488.000000 	76379.000000 	76956.000000 	82977.000000
-mean 	1.146585 	0.647855 	0.279881 	0.357061 	5.325440
-std 	0.446510 	5.485960 	1.544084 	2.235625 	27.913634
-min 	0.000000 	0.000000 	0.000000 	0.000000 	0.000000
-25% 	1.000000 	0.000000 	0.000000 	0.000000 	0.000000
-50% 	1.000000 	0.000000 	0.000000 	0.000000 	1.000000
-75% 	1.000000 	0.000000 	0.000000 	0.000000 	2.000000
-max 	8.000000 	349.000000 	161.000000 	380.000000 	699.000000
+count 	82805.000000 	   77488.000000 	7       6379.000000 	          76956.000000 	        82977.000000
+mean 	1.146585 	        0.647855 	            0.279881 	             0.357061 	            5.325440
+std 	0.446510          	5.485960 	            1.544084 	             2.235625 	            27.913634
+min 	0.000000 	         0.000000 	            0.000000 	             0.000000             	0.000000
+25% 	1.000000 	         0.000000 	            0.000000 	             0.000000 	            0.000000
+50% 	1.000000 	         0.000000 	            0.000000 	             0.000000 	            1.000000
+75% 	1.000000 	         0.000000 	            0.000000              	0.000000 	            2.000000
+max 	8.000000 	         349.000000 	          161.000000 	           380.000000 	          699.000000
 ```
 
 This shows the aggregation data of the numeric values in the dataset.
@@ -136,38 +136,66 @@ Since some of the columns have a high number of missing values we will drop the 
 * Longitude
 * FAR.Description
 ```python
-#drop column containing a large number of missing values which include  Air.carrier, latitude and many others.
+#drop column containing a large number of missing values which include  Air carrier, latitude and many others.
 df=df.drop(["Air.carrier", "Latitude", "Longitude", "FAR.Description", "Schedule", "Aircraft.Category", "Airport.Code", "Airport.Name", "Amateur.Built"],axis=1)
 df
 ```
- 
+ ```python
+df=df.drop(["Broad.phase.of.flight", "Publication.Date", "Aircraft.damage", "Engine.Type", "Report.Status", "Number.of.Engines", "Registration.Number"],axis=1)
+df
+```
 We can also drop  rows and fill in null values using mean, mode and median.
 
-I dropped rows in columns containing  few missing values which include columns make, model, location and country
+I dropped rows in columns containing  few missing values which include columns make, model, location, weather condition and country
 ```python
 df=df.dropna(subset=["Location"])
 df
 ```
 
-I have dropped rows containing missing values in column location using dropna.
+```python
+#dropping rows containing missing values in country
+df=df.dropna(subset=["Country"])
+df.head()
+```
+```python
+df=df.dropna(subset=["Make"])
+df
+```
+I have dropped rows containing missing values in columns using dropna.
 
 I filled the  missing values in the rest of the categorical data such as Purpose of flight and Injury severity with mode.
 ```python
 df["Injury.Severity"].fillna(df["Injury.Severity"].mode()[0],inplace=True)
 df.head()
 ```
-
+```python
+#filling missing values for Purpose of flight
+#We use inplace=True to make sure the changes occur in the dataset
+df["Purpose.of.flight"].fillna(df["Purpose.of.flight"].mode()[0],inplace=True)
+df
+```
 I have used fillna  to fill in the missing values with mode.
 
 For the numerical data I filled in the null values with the median of each respective column.
 
-Numerical data includes Total fatal,serious,minor and uninjured.
+Numerical data includes Total fatal, serious, minor and uninjured.
 ```python
-#fill values for Total.Serious.injuries
+#fill values for Total Serious injuries
 df["Total.Serious.Injuries"].fillna(df["Total.Serious.Injuries"].median(), inplace =True)
 df
 ```
-
+```python
+df["Total.Fatal.Injuries"].fillna(df["Total.Fatal.Injuries"].median(), inplace=True)
+df
+```
+```python
+df["Total.Minor.Injuries"].fillna(df["Total.Minor.Injuries"].median(),inplace=True)
+df.head(6)
+```
+```python
+df["Total.Uninjured"].fillna(df["Total.Uninjured"].median(),inplace= True)
+df
+```
 I also removed duplicates in the data using
 ```python
 #check for  duplicates 
@@ -180,7 +208,7 @@ True
 Since duplicates were present, I went ahead and removed the duplicates using the code shown below.
 ```python
 #removing duplicates
-df.drop_duplicates(subset=["Event.Id","Investigation.Type","Accident.Number","Event.Date","Location","Country","Injury.Severity","Make","Model","Purpose.of.flight","Total.Fatal.Injuries","Total.Uninjured"],keep="first",inplace= True)
+df.drop_duplicates(subset=["Event.Id", "Investigation.Type", "Accident.Number", "Event.Date", "Location", "Country", "Injury.Severity", "Make", "Model", "Purpose.of.flight", "Total.Fatal.Injuries", "Total.Uninjured"],keep="first",inplace= True)
 df
 ```
 
@@ -189,39 +217,41 @@ The number of duplicates was just two.
 
 This is where I made  use of visualizations to generate insights for the business stakeholders.
 
-Here, I am going to display the  visuals that I used in tableau.
-
+Here, I am going to display the  visuals that I used in Tableau.
+## Visualization 1
 ![Top 10 Riskiest Aircrafts](https://github.com/user-attachments/assets/fc3f8fca-3649-43c8-a6fb-b65abf99258f)
 This Bar chart shows the relationship between total fatal injuries and make.
 ## Observation
 * The make with the highest number of fatalities is Cessna hence Cessna will offer high risks if shareholders were to invest in the aircraft.
    
-
+## Visualization 2
 ![Top 10 Safest Aircrafts](https://github.com/user-attachments/assets/5c029dad-9ffa-4e66-8688-2d20173c12f0)
 ## Observation
 * The safest aircraft as displayed by the bar chart is Boeing.
-  
+## Visualization 3
 ![Total Uninjured by Purpose Of Flight(1)](https://github.com/user-attachments/assets/700ffe7f-0d7d-4e40-b4d5-3922e557534c)
 
-This is  a bar chart showing the  relationship between purpose of flight and the number of uninjured passengers.
+This is  a bar chart showing the  relationship between Purpose of flight and the number of uninjured passengers.
+
 ## Observation
 * The most common reason for passengers to take flights is personal flights.
 ## Interactive dashboard
 
 I made use of three interactive dashboards.
+## Dashboard 1
 ![Dashboard Comparing Riskiest and Safest Aircrafts](https://github.com/user-attachments/assets/02f67a0a-1b80-4313-a448-49ede1d9f8b5)
 
 This is a dashboard comparing the riskiest and the safest aircraft.
-
+## Dashboard 2
 ![Dashboard Comparing Purpose of flight](https://github.com/user-attachments/assets/9d111a31-74cb-4050-a74b-95d6a03772ef)
 
 This is a  dashboard comparing the total fatal injuries and uninjured in purpose of flight.
-
+## Dashboard 3
 ![Dashboard Comparing Fatal Injuries and Uninjured by Model and Weather Condition](https://github.com/user-attachments/assets/5e2763ad-5511-498d-825b-8d41291aa7b4)
 
 The dashboard above compares total fatal injuries and total uninjured by model and weather condition.
 
-From the dashboard we can see the make and models and how their are affected by weather.
+From the dashboard we can see the make and models and how they are affected by weather.
 ## Observation
 Boeing model 737 has a higher number of uninjured among the other Boeing models hence I would preferably advise the shareholders to invest in that model since it's more durable against any weather condition.
 
