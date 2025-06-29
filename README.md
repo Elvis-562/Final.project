@@ -72,7 +72,7 @@ dtypes: float64(5), object(26)
 memory usage: 21.0+ MB
 ```
 
-This shows us the number of columns and rows in the dataset.It also shows the number of values in each column.
+This shows us the number of columns and rows in the dataset. It also shows the number of values in each column.
 ```python
 df.describe()
 ```
@@ -130,20 +130,20 @@ dtype: int64
 
 The only columns that don't contain missing values are Event.Id, Investigation.Type, Accident.Number and Event.Date
 
-Since some of columns have large number of missing values we will drop the columns, such columns include:
+Since some of the columns have a high number of missing values we will drop the columns, such columns include:
 * Air carrier
 * Latitude
 * Longitude
 * FAR.Description
 ```python
-#drop column containing large number of missing values which include  Air.carrier , Latitude  and many others.
-df=df.drop(["Air.carrier","Latitude","Longitude","FAR.Description","Schedule","Aircraft.Category","Airport.Code","Airport.Name","Amateur.Built"],axis=1)
+#drop column containing a large number of missing values which include  Air.carrier, latitude and many others.
+df=df.drop(["Air.carrier", "Latitude", "Longitude", "FAR.Description", "Schedule", "Aircraft.Category", "Airport.Code", "Airport.Name", "Amateur.Built"],axis=1)
 df
 ```
  
 We can also drop  rows and fill in null values using mean, mode and median.
 
-I dropped rows in columns containing  few missing values which include columns make, model, location and Country
+I dropped rows in columns containing  few missing values which include columns make, model, location and country
 ```python
 df=df.dropna(subset=["Location"])
 df
